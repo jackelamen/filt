@@ -1,75 +1,86 @@
 .welcome {
   display: grid;
-  gap: 4px;
+  gap: 6px;
   text-align: center;
-  margin: -3px 0 19px;
+  margin: -4px 0 22px;
 }
 .welcome strong {
-  font-size: 14px;
-  color: #eef0f6;
+  font-family: var(--serif);
+  font-weight: 460;
+  font-variation-settings: "SOFT" 50;
+  font-size: 19px;
+  letter-spacing: 0.01em;
+  color: var(--cream);
 }
 .welcome span {
-  font-size: 11px;
-  color: #737989;
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--muted);
 }
 
 .footerActions {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
 }
 
 footer .summaryShortcut {
-  min-height: 33px;
-  padding: 0 10px;
-  border: 1px solid #292c3b;
-  border-radius: 10px;
-  background: #181b26;
-  color: #c7cad4;
+  min-height: 34px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--inset);
+  color: var(--text);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .summaryHead .back {
   margin-left: auto;
-  padding: 7px 9px;
-  border-radius: 9px;
-  background: #1b1e29;
-  color: #bfc3cd;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--inset);
+  border: 1px solid var(--line);
+  color: var(--text);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .summaryHead .back + span {
-  margin-left: 4px;
+  margin-left: 5px;
 }
 
 .diaperAction {
   width: 100%;
-  min-height: 54px;
-  margin-top: 14px;
-  padding: 9px 11px;
+  min-height: 58px;
+  margin-top: 16px;
+  padding: 11px 14px;
   display: grid;
-  grid-template-columns: 20px 1fr;
+  grid-template-columns: 22px 1fr;
   align-items: center;
-  gap: 3px 8px;
-  border: 1px solid #292d3b;
-  border-radius: 13px;
-  background: #151824;
-  color: #d9dce4;
+  gap: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--inset);
+  color: var(--text);
   text-align: left;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
+  transition:
+    transform 0.2s ease,
+    border-color 0.3s ease;
 }
-
+.diaperAction:active {
+  transform: scale(0.99);
+}
 .diaperAction > span:first-child {
   grid-row: span 2;
-  color: #ffcf69;
-  font-size: 18px;
+  color: var(--gold);
+  font-size: 19px;
 }
-
 .diaperAction small {
-  color: #7c8290;
+  color: var(--faint);
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 300;
 }

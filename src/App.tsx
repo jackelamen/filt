@@ -596,7 +596,7 @@ function Summary({ t, language, today, diapers, exportPdf, goHome, openSettings 
         </div>
       ) : (
         <div className="empty">
-          <span>◌</span>
+          <span>☾</span>
           <p>{t.empty}</p>
         </div>
       )}
