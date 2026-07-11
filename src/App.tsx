@@ -51,6 +51,8 @@ const copy = {
     birth: "생년월일",
     close: "닫기",
     advice: "간격은 기록을 바탕으로 한 참고 정보이며 의학적 조언이 아닙니다.",
+    backup: "내 데이터 백업",
+    backupDetail: "모든 기록을 JSON 파일로 저장합니다.",
   },
   en: {
     start: "START",
@@ -87,6 +89,8 @@ const copy = {
     close: "Close",
     advice:
       "Timing guidance is based on your records and is not medical advice.",
+    backup: "Back up my data",
+    backupDetail: "Saves all your records as a JSON file.",
   },
 };
 const dayStart = (n = Date.now()) =>
@@ -123,8 +127,16 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>(() =>
     getActiveSession() ? "running" : "home",
   );
-  const [type, setType] = useState<FeedingType>("breast");
-  const [side, setSide] = useState<Side>("left");
+  const [type, setType] = useState<FeedingType>(
+    () => getSessions()[0]?.feedingType ?? "breast",
+  );
+  const [side, setSide] = useState<Side>(() => {
+    const last = getSessions()[0];
+    if (last?.feedingType === "breast" && last.breastSide) {
+      return last.breastSide === "left" ? "right" : "left";
+    }
+    return "left";
+  });
   const [volume, setVolume] = useState<number | null>(60);
   const [diapers, setDiapers] = useState<DiaperLog[]>(getDiaperLogs);
   const [active, setActive] = useState<FeedingSession | null>(getActiveSession);
@@ -186,8 +198,18 @@ export default function App() {
       durationMs: Date.now() - active.startTime,
     };
     clearActiveSession();
-    setSessions(saveSession(finished));
     setActive(null);
+    if (finished.feedingType === "breast" && finished.breastSide) {
+      setSide(finished.breastSide === "left" ? "right" : "left");
+    }
+    // Ignore accidental taps (mis-hit START then immediately STOP) rather
+    // than saving a spurious sub-5-second session that would pollute the
+    // timeline/PDF and skew the interval algorithm's "short feed" logic.
+    if (finished.durationMs < 5000) {
+      setScreen("home");
+      return;
+    }
+    setSessions(saveSession(finished));
     setToast({
       message: t.saved,
       until: Date.now() + 5000,
@@ -215,6 +237,23 @@ export default function App() {
         setDiapers(getDiaperLogs());
       },
     });
+  };
+  const exportBackup = () => {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      sessions,
+      diapers,
+      settings,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `filt-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
   const exportPdf = async () => {
     const { jsPDF } = await import("jspdf");
@@ -293,6 +332,7 @@ export default function App() {
           today={today}
           last={last}
           interval={interval.ms}
+          confidence={interval.confidence}
           type={type}
           setType={setType}
           side={side}
@@ -313,6 +353,7 @@ export default function App() {
           active={active}
           now={now}
           interval={interval.ms}
+          confidence={interval.confidence}
           stop={stop}
         />
       )}
@@ -333,6 +374,7 @@ export default function App() {
           settings={settings}
           update={setSettings}
           close={() => setScreen("home")}
+          exportBackup={exportBackup}
         />
       )}
       {toast && (
@@ -350,6 +392,7 @@ function Home({
   today,
   last,
   interval,
+  confidence,
   type,
   setType,
   side,
@@ -461,7 +504,7 @@ function Home({
       </div>
       <footer>
         <span className="interval">
-          <em /> ⏱ {t.next}:{" "}
+          <em className={`dot-${confidence}`} /> ⏱ {t.next}:{" "}
           <b>{untilNext <= 0 ? t.now : remaining(untilNext)}</b>
         </span>
         <div className="footerActions">
@@ -476,7 +519,7 @@ function Home({
     </section>
   );
 }
-function Running({ t, active, now, interval, stop }: any) {
+function Running({ t, active, now, interval, confidence, stop }: any) {
   const untilNext = interval - (now - active.startTime);
   return (
     <section className="screen running">
@@ -484,7 +527,8 @@ function Running({ t, active, now, interval, stop }: any) {
         <p>{t.progress}</p>
         <div className="elapsed">{duration(now - active.startTime)}</div>
         <div className="window">
-          <em /> ⏱ {t.window}: {untilNext <= 0 ? t.now : remaining(untilNext)}
+          <em className={`dot-${confidence}`} /> ⏱ {t.window}:{" "}
+          {untilNext <= 0 ? t.now : remaining(untilNext)}
         </div>
         <button className="big stop" onClick={stop}>
           ■ <span>{t.stop}</span>
@@ -571,7 +615,7 @@ function Pill({ value, label }: any) {
     </div>
   );
 }
-function SettingsView({ t, settings, update, close }: any) {
+function SettingsView({ t, settings, update, close, exportBackup }: any) {
   return (
     <section className="screen settings">
       <div className="summaryHead">
@@ -594,6 +638,11 @@ function SettingsView({ t, settings, update, close }: any) {
           onChange={(e) => update({ ...settings, birthDate: e.target.value })}
         />
       </label>
+      <button className="diaperAction" onClick={exportBackup}>
+        <span>⇩</span>
+        <span>{t.backup}</span>
+        <small>{t.backupDetail}</small>
+      </button>
       <p>{t.advice}</p>
       <button className="big start" onClick={close}>
         {t.close}

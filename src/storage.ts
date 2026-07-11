@@ -3,6 +3,22 @@ const SESSIONS = "filt_sessions";
 const SETTINGS = "filt_settings";
 const ACTIVE_SESSION = "filt_active_session";
 const DIAPERS = "filt_diapers";
+// localStorage.setItem can throw (Safari private mode, quota exceeded) —
+// swallow it so a save failure never crashes the app mid-feed.
+const safeSet = (key: string, value: string) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // ignore — data just won't persist this time
+  }
+};
+const safeRemove = (key: string) => {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // ignore
+  }
+};
 export const getSessions = (): FeedingSession[] => {
   try {
     return JSON.parse(localStorage.getItem(SESSIONS) || "[]");
@@ -16,11 +32,11 @@ export const saveSession = (session: FeedingSession) => {
     session,
     ...getSessions().filter((x) => x.id !== session.id),
   ].filter((x) => x.startTime >= limit);
-  localStorage.setItem(SESSIONS, JSON.stringify(sessions));
+  safeSet(SESSIONS, JSON.stringify(sessions));
   return sessions;
 };
 export const removeSession = (id: string) =>
-  localStorage.setItem(
+  safeSet(
     SESSIONS,
     JSON.stringify(getSessions().filter((x) => x.id !== id)),
   );
@@ -32,8 +48,8 @@ export const getActiveSession = (): FeedingSession | null => {
   }
 };
 export const saveActiveSession = (session: FeedingSession) =>
-  localStorage.setItem(ACTIVE_SESSION, JSON.stringify(session));
-export const clearActiveSession = () => localStorage.removeItem(ACTIVE_SESSION);
+  safeSet(ACTIVE_SESSION, JSON.stringify(session));
+export const clearActiveSession = () => safeRemove(ACTIVE_SESSION);
 export const getDiaperLogs = (): DiaperLog[] => {
   try {
     return JSON.parse(localStorage.getItem(DIAPERS) || "[]");
@@ -46,11 +62,11 @@ export const saveDiaperLog = (log: DiaperLog) => {
   const logs = [log, ...getDiaperLogs().filter((x) => x.id !== log.id)].filter(
     (x) => x.changedAt >= limit,
   );
-  localStorage.setItem(DIAPERS, JSON.stringify(logs));
+  safeSet(DIAPERS, JSON.stringify(logs));
   return logs;
 };
 export const removeDiaperLog = (id: string) =>
-  localStorage.setItem(DIAPERS, JSON.stringify(getDiaperLogs().filter((x) => x.id !== id)));
+  safeSet(DIAPERS, JSON.stringify(getDiaperLogs().filter((x) => x.id !== id)));
 export const getSettings = (): Settings => {
   try {
     return {
@@ -64,4 +80,4 @@ export const getSettings = (): Settings => {
   }
 };
 export const saveSettings = (settings: Settings) =>
-  localStorage.setItem(SETTINGS, JSON.stringify(settings));
+  safeSet(SETTINGS, JSON.stringify(settings));

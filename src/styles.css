@@ -228,10 +228,21 @@ footer {
 .window em {
   width: 7px;
   height: 7px;
-  background: #76e09b;
   border-radius: 100%;
   display: inline-block;
   margin-right: 3px;
+}
+em {
+  background: #76e09b;
+}
+.dot-low {
+  background: #ff6b6b;
+}
+.dot-medium {
+  background: #ffd166;
+}
+.dot-high {
+  background: #76e09b;
 }
 .interval b {
   color: #d3d5de;
