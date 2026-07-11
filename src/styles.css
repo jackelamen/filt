@@ -1,5 +1,5 @@
 /* ───────────────────────────────────────────────
-   FILT — "Moonlit Nursery" theme
+   Baby Dawn — "Moonlit Nursery" theme
    Warm night palette for calm, one-handed 3am use.
    ─────────────────────────────────────────────── */
 :root {
@@ -103,18 +103,12 @@ header {
   font-weight: 500;
   font-variation-settings: "SOFT" 60;
   font-size: 25px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
   background: linear-gradient(120deg, var(--gold), var(--rose));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-}
-.brand span {
-  font-size: 8px;
-  letter-spacing: 0.28em;
-  color: var(--faint);
-  font-weight: 500;
-  text-transform: uppercase;
 }
 .language {
   font-size: 11px;

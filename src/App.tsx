@@ -259,7 +259,7 @@ export default function App() {
     const { jsPDF } = await import("jspdf");
     const doc = new jsPDF();
     doc.setFontSize(20);
-    doc.text("FILT Feeding Report", 20, 20);
+    doc.text("Baby Dawn Feeding Report", 20, 20);
     doc.setFontSize(11);
     doc.text(
       `${settings.babyName || "Baby"} · ${new Date().toLocaleDateString()}`,
@@ -309,8 +309,7 @@ export default function App() {
     >
       <header>
         <div className="brand">
-          <b>FILT</b>
-          <span>NEWBORN FEEDING</span>
+          <b>Baby Dawn</b>
         </div>
         <button
           className="language"
