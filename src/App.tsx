@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { FeedingSession, FeedingType, Settings, Side } from "./types";
+import type { DiaperLog, FeedingSession, FeedingType, Settings, Side } from "./types";
 import {
   clearActiveSession,
+  getDiaperLogs,
   getActiveSession,
   getSessions,
   getSettings,
   removeSession,
+  removeDiaperLog,
   saveActiveSession,
+  saveDiaperLog,
   saveSession,
   saveSettings,
 } from "./storage";
@@ -20,6 +23,9 @@ const copy = {
     breast: "모유",
     bottle: "분유",
     diaper: "기저귀 교체",
+    diaperLog: "기저귀 교체 기록",
+    diaperLast: "마지막 기저귀",
+    diaperSaved: "기저귀 교체 기록됨",
     today: "오늘",
     feedings: "회 수유",
     last: "마지막",
@@ -51,7 +57,10 @@ const copy = {
     stop: "STOP",
     breast: "Breast",
     bottle: "Bottle",
-    diaper: "Diaper change",
+    diaper: "Diapers",
+    diaperLog: "Log diaper change",
+    diaperLast: "Last diaper",
+    diaperSaved: "Diaper change recorded",
     today: "Today",
     feedings: "feedings",
     last: "Last",
@@ -117,12 +126,13 @@ export default function App() {
   const [type, setType] = useState<FeedingType>("breast");
   const [side, setSide] = useState<Side>("left");
   const [volume, setVolume] = useState<number | null>(60);
-  const [diaper, setDiaper] = useState(false);
+  const [diapers, setDiapers] = useState<DiaperLog[]>(getDiaperLogs);
   const [active, setActive] = useState<FeedingSession | null>(getActiveSession);
   const [now, setNow] = useState(Date.now());
   const [toast, setToast] = useState<{
-    session: FeedingSession;
+    message: string;
     until: number;
+    onUndo: () => void;
   } | null>(null);
   const touchX = useRef<number | null>(null);
   const t = copy[settings.language];
@@ -159,7 +169,7 @@ export default function App() {
       feedingType: type,
       breastSide: type === "breast" ? side : null,
       volumeMl: type === "bottle" ? volume : null,
-      diaperChanged: diaper,
+      diaperChanged: false,
       notes: "",
       createdAt: time,
     };
@@ -178,15 +188,33 @@ export default function App() {
     clearActiveSession();
     setSessions(saveSession(finished));
     setActive(null);
-    setDiaper(false);
-    setToast({ session: finished, until: Date.now() + 5000 });
+    setToast({
+      message: t.saved,
+      until: Date.now() + 5000,
+      onUndo: () => {
+        removeSession(finished.id);
+        setSessions(getSessions());
+      },
+    });
     setScreen("home");
   };
   const undo = () => {
     if (!toast) return;
-    removeSession(toast.session.id);
-    setSessions(getSessions());
+    toast.onUndo();
     setToast(null);
+  };
+  const logDiaper = () => {
+    navigator.vibrate?.(10);
+    const log = { id: crypto.randomUUID(), changedAt: Date.now(), createdAt: Date.now() };
+    setDiapers(saveDiaperLog(log));
+    setToast({
+      message: t.diaperSaved,
+      until: Date.now() + 5000,
+      onUndo: () => {
+        removeDiaperLog(log.id);
+        setDiapers(getDiaperLogs());
+      },
+    });
   };
   const exportPdf = async () => {
     const { jsPDF } = await import("jspdf");
@@ -204,6 +232,11 @@ export default function App() {
       20,
       38,
     );
+    doc.text(
+      `Diaper changes: ${diapers.filter((log) => log.changedAt >= dayStart()).length + today.filter((session) => session.diaperChanged).length}`,
+      20,
+      45,
+    );
     today
       .slice()
       .reverse()
@@ -211,7 +244,7 @@ export default function App() {
         doc.text(
           `${clock(s.startTime)}  ${labelFor(s)}  ${shortDuration(s.durationMs)}${s.diaperChanged ? "  + diaper" : ""}`,
           20,
-          52 + i * 8,
+          59 + i * 8,
         ),
       );
     doc.save(
@@ -267,8 +300,8 @@ export default function App() {
           lastUsed={lastUsed}
           volume={volume}
           setVolume={setVolume}
-          diaper={diaper}
-          setDiaper={setDiaper}
+        diapers={diapers}
+        logDiaper={logDiaper}
           start={start}
         openSettings={() => setScreen("settings")}
         openSummary={() => setScreen("summary")}
@@ -288,6 +321,7 @@ export default function App() {
         t={t}
         language={settings.language}
         today={today}
+        diapers={diapers}
         exportPdf={exportPdf}
         goHome={() => setScreen("home")}
           openSettings={() => setScreen("settings")}
@@ -303,7 +337,7 @@ export default function App() {
       )}
       {toast && (
         <div className="toast">
-          <span>✓ {t.saved}</span>
+          <span>✓ {toast.message}</span>
           <button onClick={undo}>{t.undo}</button>
         </div>
       )}
@@ -323,8 +357,8 @@ function Home({
   lastUsed,
   volume,
   setVolume,
-  diaper,
-  setDiaper,
+  diapers,
+  logDiaper,
   start,
   openSummary,
   openSettings,
@@ -417,14 +451,13 @@ function Home({
         <button className="big start" onClick={start}>
           ▶ <span>{t.start}</span>
         </button>
-        <label className="check">
-          <input
-            type="checkbox"
-            checked={diaper}
-            onChange={(e) => setDiaper(e.target.checked)}
-          />
-          <span>{t.diaper}</span>
-        </label>
+        <button className="diaperAction" onClick={logDiaper}>
+          <span>♧</span>
+          <span>{t.diaperLog}</span>
+          <small>
+            {t.diaperLast}: {diapers[0] ? `${remaining(Date.now() - diapers[0].changedAt)} ${t.ago}` : "—"}
+          </small>
+        </button>
       </div>
       <footer>
         <span className="interval">
@@ -464,12 +497,14 @@ function Running({ t, active, now, interval, stop }: any) {
     </section>
   );
 }
-function Summary({ t, language, today, exportPdf, goHome, openSettings }: any) {
+function Summary({ t, language, today, diapers, exportPdf, goHome, openSettings }: any) {
   const total = today.reduce(
     (a: number, s: FeedingSession) => a + s.durationMs,
     0,
   );
-  const diaper = today.filter((s: FeedingSession) => s.diaperChanged).length;
+  const diaper =
+    diapers.filter((log: DiaperLog) => log.changedAt >= dayStart()).length +
+    today.filter((session: FeedingSession) => session.diaperChanged).length;
   const max = Math.max(...today.map((s: FeedingSession) => s.durationMs), 1);
   return (
     <section className="screen summary">

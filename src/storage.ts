@@ -1,7 +1,8 @@
-import type { FeedingSession, Settings } from "./types";
+import type { DiaperLog, FeedingSession, Settings } from "./types";
 const SESSIONS = "filt_sessions";
 const SETTINGS = "filt_settings";
 const ACTIVE_SESSION = "filt_active_session";
+const DIAPERS = "filt_diapers";
 export const getSessions = (): FeedingSession[] => {
   try {
     return JSON.parse(localStorage.getItem(SESSIONS) || "[]");
@@ -33,6 +34,23 @@ export const getActiveSession = (): FeedingSession | null => {
 export const saveActiveSession = (session: FeedingSession) =>
   localStorage.setItem(ACTIVE_SESSION, JSON.stringify(session));
 export const clearActiveSession = () => localStorage.removeItem(ACTIVE_SESSION);
+export const getDiaperLogs = (): DiaperLog[] => {
+  try {
+    return JSON.parse(localStorage.getItem(DIAPERS) || "[]");
+  } catch {
+    return [];
+  }
+};
+export const saveDiaperLog = (log: DiaperLog) => {
+  const limit = Date.now() - 30 * 86400000;
+  const logs = [log, ...getDiaperLogs().filter((x) => x.id !== log.id)].filter(
+    (x) => x.changedAt >= limit,
+  );
+  localStorage.setItem(DIAPERS, JSON.stringify(logs));
+  return logs;
+};
+export const removeDiaperLog = (id: string) =>
+  localStorage.setItem(DIAPERS, JSON.stringify(getDiaperLogs().filter((x) => x.id !== id)));
 export const getSettings = (): Settings => {
   try {
     return {
