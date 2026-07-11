@@ -14,6 +14,8 @@ import {
   saveSettings,
 } from "./storage";
 import { nextInterval } from "./interval";
+import { Logo } from "./Logo";
+import { Icon } from "./Icon";
 
 type Screen = "home" | "running" | "summary" | "settings";
 const copy = {
@@ -22,6 +24,8 @@ const copy = {
     stop: "수유 종료",
     breast: "모유",
     bottle: "분유",
+    left: "왼쪽",
+    right: "오른쪽",
     diaper: "기저귀 교체",
     diaperLog: "기저귀 교체 기록",
     diaperLast: "마지막 기저귀",
@@ -59,6 +63,8 @@ const copy = {
     stop: "STOP",
     breast: "Breast",
     bottle: "Bottle",
+    left: "Left",
+    right: "Right",
     diaper: "Diapers",
     diaperLog: "Log diaper change",
     diaperLast: "Last diaper",
@@ -309,6 +315,7 @@ export default function App() {
     >
       <header>
         <div className="brand">
+          <Logo size={30} />
           <b>Baby Dawn</b>
         </div>
         <button
@@ -451,7 +458,7 @@ function Home({
               className={side === "left" ? "selected" : ""}
               onClick={() => setSide("left")}
             >
-              ◀ {t.left}
+              <Icon name="left" size={16} /> {t.left}
               <small>{lastUsed === "left" ? "•" : ""}</small>
             </button>
             <button
@@ -459,12 +466,15 @@ function Home({
               className={side === "right" ? "selected" : ""}
               onClick={() => setSide("right")}
             >
-              {t.right} ▶<small>{lastUsed === "right" ? "•" : ""}</small>
+              {t.right} <Icon name="right" size={16} />
+              <small>{lastUsed === "right" ? "•" : ""}</small>
             </button>
           </div>
         ) : (
           <div className="volume">
-            <label>🍼</label>
+            <label>
+              <Icon name="bottle" size={20} />
+            </label>
             <input
               aria-label="Bottle volume in millilitres"
               type="number"
@@ -491,10 +501,13 @@ function Home({
           </div>
         )}
         <button className="big start" onClick={start}>
-          ▶ <span>{t.start}</span>
+          <Icon name="play" size={18} />
+          <span>{t.start}</span>
         </button>
         <button className="diaperAction" onClick={logDiaper}>
-          <span>♧</span>
+          <span>
+            <Icon name="diaper" size={19} />
+          </span>
           <span>{t.diaperLog}</span>
           <small>
             {t.diaperLast}: {diapers[0] ? `${remaining(Date.now() - diapers[0].changedAt)} ${t.ago}` : "—"}
@@ -503,15 +516,20 @@ function Home({
       </div>
       <footer>
         <span className="interval">
-          <em className={`dot-${confidence}`} /> ⏱ {t.next}:{" "}
+          <em className={`dot-${confidence}`} />
+          <Icon name="clock" size={13} /> {t.next}:{" "}
           <b>{untilNext <= 0 ? t.now : remaining(untilNext)}</b>
         </span>
         <div className="footerActions">
           <button className="summaryShortcut" onClick={openSummary}>
-            ☷ {t.viewSummary}
+            <Icon name="chart" size={15} /> {t.viewSummary}
           </button>
-          <button aria-label={t.settings} onClick={openSettings}>
-            ⚙
+          <button
+            className="iconBtn"
+            aria-label={t.settings}
+            onClick={openSettings}
+          >
+            <Icon name="settings" size={20} />
           </button>
         </div>
       </footer>
@@ -526,11 +544,13 @@ function Running({ t, active, now, interval, confidence, stop }: any) {
         <p>{t.progress}</p>
         <div className="elapsed">{duration(now - active.startTime)}</div>
         <div className="window">
-          <em className={`dot-${confidence}`} /> ⏱ {t.window}:{" "}
+          <em className={`dot-${confidence}`} />
+          <Icon name="clock" size={14} /> {t.window}:{" "}
           {untilNext <= 0 ? t.now : remaining(untilNext)}
         </div>
         <button className="big stop" onClick={stop}>
-          ■ <span>{t.stop}</span>
+          <Icon name="stop" size={16} />
+          <span>{t.stop}</span>
         </button>
         <small>
           {labelFor(active)}
@@ -554,7 +574,7 @@ function Summary({ t, language, today, diapers, exportPdf, goHome, openSettings 
       <div className="summaryHead">
         <h1>{t.summary}</h1>
         <button className="back" onClick={goHome}>
-          ‹ {t.back}
+          <Icon name="back" size={14} /> {t.back}
         </button>
         <span>
           {new Intl.DateTimeFormat(language === "ko" ? "ko-KR" : "en-US", {
@@ -595,13 +615,19 @@ function Summary({ t, language, today, diapers, exportPdf, goHome, openSettings 
         </div>
       ) : (
         <div className="empty">
-          <span>☾</span>
+          <span>
+            <Icon name="moon" size={42} />
+          </span>
           <p>{t.empty}</p>
         </div>
       )}
       <div className="summaryActions">
-        <button onClick={exportPdf}>📄 {t.export}</button>
-        <button onClick={openSettings}>⚙ {t.settings}</button>
+        <button onClick={exportPdf}>
+          <Icon name="document" size={16} /> {t.export}
+        </button>
+        <button onClick={openSettings}>
+          <Icon name="settings" size={16} /> {t.settings}
+        </button>
       </div>
     </section>
   );
@@ -619,7 +645,9 @@ function SettingsView({ t, settings, update, close, exportBackup }: any) {
     <section className="screen settings">
       <div className="summaryHead">
         <h1>{t.settings}</h1>
-        <button onClick={close}>×</button>
+        <button className="iconBtn" aria-label={t.close} onClick={close}>
+          <Icon name="close" size={20} />
+        </button>
       </div>
       <label>
         {t.baby}
@@ -638,7 +666,9 @@ function SettingsView({ t, settings, update, close, exportBackup }: any) {
         />
       </label>
       <button className="diaperAction" onClick={exportBackup}>
-        <span>⇩</span>
+        <span>
+          <Icon name="download" size={19} />
+        </span>
         <span>{t.backup}</span>
         <small>{t.backupDetail}</small>
       </button>

@@ -26,7 +26,10 @@
 
 footer .summaryShortcut {
   min-height: 34px;
-  padding: 0 13px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--inset);
@@ -35,16 +38,41 @@ footer .summaryShortcut {
   font-weight: 500;
   letter-spacing: 0.02em;
 }
+.summaryShortcut svg {
+  color: var(--rose);
+}
+
+/* Icon-only round tap targets (settings, close) */
+.iconBtn {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--inset);
+  border: 1px solid var(--line);
+  color: var(--rose);
+}
 
 .summaryHead .back {
   margin-left: auto;
-  padding: 8px 12px;
+  padding: 8px 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   border-radius: 999px;
   background: var(--inset);
   border: 1px solid var(--line);
   color: var(--text);
   font-size: 11px;
   font-weight: 500;
+}
+.summaryHead .back svg {
+  color: var(--rose);
+}
+.summaryHead .iconBtn {
+  margin-left: 0;
 }
 
 .summaryHead .back + span {
@@ -76,8 +104,10 @@ footer .summaryShortcut {
 }
 .diaperAction > span:first-child {
   grid-row: span 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--gold);
-  font-size: 19px;
 }
 .diaperAction small {
   color: var(--faint);
