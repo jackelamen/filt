@@ -326,6 +326,7 @@ header {
 .big {
   width: min(100%, 264px);
   height: 76px;
+  margin: 0 auto;
   border-radius: 999px;
   font-size: 17px;
   font-weight: 500;
