@@ -5,9 +5,10 @@
   text-align: center;
   margin: -4px 0 22px;
 }
-.welcome svg {
-  margin-bottom: 8px;
-  filter: drop-shadow(0 4px 16px rgba(231, 166, 168, 0.18));
+.welcome svg,
+.welcome img {
+  margin-bottom: 10px;
+  filter: drop-shadow(0 6px 20px rgba(231, 166, 168, 0.16));
 }
 .welcome strong {
   font-family: var(--serif);

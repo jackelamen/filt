@@ -434,7 +434,7 @@ function Home({
       <div className="card">
         {!last && (
           <div className="welcome">
-            <MotherMark size={118} />
+            <MotherMark height={150} />
             <strong>{t.ready}</strong>
             <span>{t.readyDetail}</span>
           </div>
