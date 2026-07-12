@@ -602,22 +602,7 @@ function Summary({ t, language, today, diapers, exportPdf, goHome, openSettings 
             .slice()
             .reverse()
             .map((s: FeedingSession) => (
-              <div className="session" key={s.id}>
-                <time>{clock(s.startTime)}</time>
-                <div className="bar">
-                  <i
-                    style={{
-                      width: `${Math.max(12, (s.durationMs / max) * 100)}%`,
-                    }}
-                  />
-                </div>
-                <b>
-                  {labelFor(s)} ·{" "}
-                  {s.feedingType === "bottle"
-                    ? `${s.volumeMl || 0}ml`
-                    : shortDuration(s.durationMs)}
-                </b>
-              </div>
+              <SessionRow key={s.id} s={s} max={max} />
             ))}
         </div>
       ) : (
@@ -637,6 +622,61 @@ function Summary({ t, language, today, diapers, exportPdf, goHome, openSettings 
         </button>
       </div>
     </section>
+  );
+}
+function SessionRow({ s, max }: { s: FeedingSession; max: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    // Safety net: an entrance animation must never be able to permanently
+    // hide real content. If IntersectionObserver is unsupported, disabled,
+    // or simply never fires for this element, reveal it anyway. Long delay
+    // so real scroll-triggered reveals (which fire in ~100ms) always win.
+    const fallback = window.setTimeout(() => setVisible(true), 4000);
+    if (typeof IntersectionObserver === "undefined") return () => clearTimeout(fallback);
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          clearTimeout(fallback);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -6% 0px" },
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      clearTimeout(fallback);
+    };
+  }, []);
+  return (
+    <div className={`session${visible ? " in" : ""}`} ref={ref}>
+      <span className="rail">
+        <i className="dot" />
+        <i className="line" />
+      </span>
+      <time>{clock(s.startTime)}</time>
+      <div className="bar">
+        <i
+          style={{
+            width: `${Math.max(12, (s.durationMs / max) * 100)}%`,
+          }}
+        />
+      </div>
+      <b>
+        {s.feedingType === "bottle" ? (
+          <Icon name="bottle" size={13} />
+        ) : (
+          <em className="sideBadge">{s.breastSide === "left" ? "L" : "R"}</em>
+        )}
+        {s.feedingType === "bottle"
+          ? `${s.volumeMl || 0}ml`
+          : shortDuration(s.durationMs)}
+      </b>
+    </div>
   );
 }
 function Pill({ value, label }: any) {

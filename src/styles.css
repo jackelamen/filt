@@ -544,21 +544,70 @@ em {
 .timeline {
   overflow: auto;
   flex: 1;
-  padding-right: 3px;
+  padding: 2px 3px 2px 0;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 18px,
+    #000 calc(100% - 18px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 18px,
+    #000 calc(100% - 18px),
+    transparent 100%
+  );
 }
 .session {
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 14px 2px;
-  border-bottom: 1px solid var(--line-soft);
+  gap: 10px;
+  padding: 13px 2px;
   font-size: 12px;
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.session.in {
+  opacity: 1;
+  transform: none;
+}
+.session .rail {
+  width: 9px;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: none;
+}
+.session .rail .dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blush-a), var(--gold));
+  box-shadow: 0 0 8px rgba(231, 166, 168, 0.5);
+}
+.session .rail .line {
+  width: 1.5px;
+  flex: 1;
+  margin-top: 4px;
+  background: var(--line);
+}
+.session:last-child .rail .line {
+  display: none;
 }
 .session time {
-  width: 44px;
+  width: 40px;
   color: var(--muted);
   font-weight: 300;
   font-feature-settings: "tnum";
+  flex: none;
 }
 .session .bar {
   height: 7px;
@@ -572,13 +621,45 @@ em {
   display: block;
   background: linear-gradient(90deg, var(--blush-a), var(--gold));
   border-radius: 999px;
+  box-shadow: 0 0 6px rgba(231, 166, 168, 0.4);
 }
 .session b {
-  width: 80px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  min-width: 70px;
   text-align: right;
   color: var(--text);
   font-size: 11px;
   font-weight: 500;
+  flex: none;
+}
+.session b svg {
+  color: var(--gold);
+  flex: none;
+}
+.sideBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 50%;
+  font-family: var(--serif);
+  font-style: normal;
+  font-weight: 600;
+  font-size: 10px;
+  color: var(--rose-deep);
+  background: linear-gradient(135deg, var(--blush-a), var(--blush-b));
+}
+@media (prefers-reduced-motion: reduce) {
+  .session {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 .summaryActions {
   display: flex;
