@@ -16,6 +16,7 @@ import {
 import { nextInterval } from "./interval";
 import { Logo } from "./Logo";
 import { Icon } from "./Icon";
+import { MotherMark } from "./MotherMark";
 
 type Screen = "home" | "running" | "summary" | "settings";
 const copy = {
@@ -433,6 +434,7 @@ function Home({
       <div className="card">
         {!last && (
           <div className="welcome">
+            <MotherMark size={118} />
             <strong>{t.ready}</strong>
             <span>{t.readyDetail}</span>
           </div>

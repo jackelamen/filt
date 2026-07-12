@@ -1,8 +1,13 @@
 .welcome {
   display: grid;
   gap: 6px;
+  justify-items: center;
   text-align: center;
   margin: -4px 0 22px;
+}
+.welcome svg {
+  margin-bottom: 8px;
+  filter: drop-shadow(0 4px 16px rgba(231, 166, 168, 0.18));
 }
 .welcome strong {
   font-family: var(--serif);
