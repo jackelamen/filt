@@ -17,6 +17,7 @@ import { nextInterval } from "./interval";
 import { Logo } from "./Logo";
 import { Icon } from "./Icon";
 import { MotherMark } from "./MotherMark";
+import { Splash } from "./Splash";
 
 type Screen = "home" | "running" | "summary" | "settings";
 const copy = {
@@ -129,6 +130,7 @@ const getAge = (date: string) =>
     : 0;
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
   const [sessions, setSessions] = useState<FeedingSession[]>(getSessions);
   const [settings, setSettings] = useState<Settings>(getSettings);
   const [screen, setScreen] = useState<Screen>(() =>
@@ -307,13 +309,15 @@ export default function App() {
     touchX.current = null;
   };
   return (
-    <main
-      className="app"
-      onTouchStart={(e) => {
-        touchX.current = e.touches[0].clientX;
-      }}
-      onTouchEnd={navigate}
-    >
+    <>
+      {showSplash && <Splash onDone={() => setShowSplash(false)} />}
+      <main
+        className="app"
+        onTouchStart={(e) => {
+          touchX.current = e.touches[0].clientX;
+        }}
+        onTouchEnd={navigate}
+      >
       <header>
         <div className="brand">
           <Logo size={30} />
@@ -390,7 +394,8 @@ export default function App() {
           <button onClick={undo}>{t.undo}</button>
         </div>
       )}
-    </main>
+      </main>
+    </>
   );
 }
 
@@ -434,7 +439,7 @@ function Home({
       <div className="card">
         {!last && (
           <div className="welcome">
-            <MotherMark height={150} />
+            <MotherMark width={300} />
             <strong>{t.ready}</strong>
             <span>{t.readyDetail}</span>
           </div>
