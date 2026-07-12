@@ -37,8 +37,9 @@ const paths: Record<IconName, ReactNode> = {
   ),
   diaper: (
     <>
-      <path d="M4 8h16l-6.4 8.6a2 2 0 0 1-3.2 0L4 8Z" />
-      <path d="M8.2 8.4 9.4 12M15.8 8.4 14.6 12" />
+      <path d="M5 8h14" />
+      <path d="M5 8c0 5.2 2.8 9 7 9s7-3.8 7-9" />
+      <path d="M5 8l-1.6 3M19 8l1.6 3" />
     </>
   ),
   bottle: (

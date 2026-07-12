@@ -28,6 +28,7 @@ const copy = {
     bottle: "분유",
     left: "왼쪽",
     right: "오른쪽",
+    volumeLabel: "분유량 (ml)",
     diaper: "기저귀 교체",
     diaperLog: "기저귀 교체 기록",
     diaperLast: "마지막 기저귀",
@@ -67,12 +68,13 @@ const copy = {
     bottle: "Bottle",
     left: "Left",
     right: "Right",
+    volumeLabel: "Bottle volume in millilitres",
     diaper: "Diapers",
     diaperLog: "Log diaper change",
     diaperLast: "Last diaper",
     diaperSaved: "Diaper change recorded",
     today: "Today",
-    feedings: "feedings",
+    feedings: " feedings",
     last: "Last",
     ago: "ago",
     next: "Next feeding in",
@@ -461,7 +463,6 @@ function Home({
         {type === "breast" ? (
           <div className="sides">
             <button
-              aria-label="Left breast"
               className={side === "left" ? "selected" : ""}
               onClick={() => setSide("left")}
             >
@@ -469,7 +470,6 @@ function Home({
               <small>{lastUsed === "left" ? "•" : ""}</small>
             </button>
             <button
-              aria-label="Right breast"
               className={side === "right" ? "selected" : ""}
               onClick={() => setSide("right")}
             >
@@ -483,7 +483,7 @@ function Home({
               <Icon name="bottle" size={20} />
             </label>
             <input
-              aria-label="Bottle volume in millilitres"
+              aria-label={t.volumeLabel}
               type="number"
               min="0"
               max="500"
